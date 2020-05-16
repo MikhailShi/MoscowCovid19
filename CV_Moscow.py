@@ -45,17 +45,38 @@ data['Periods'] = data.Year.apply(lambda x: str(x) if x == 2010 or x == 2020 els
 
 
 # Data plotting
+# Catplot with mean and ci for 2011-2019
 sns.set(style="darkgrid")
 
 g = sns.catplot(x="Mon", y="StateRegistrationOfDeath", kind="bar",
                 hue="Periods", data=data, palette="Set2",
-                legend="full")
+                legend="full", ci=99.999)
 g.fig.suptitle('Monthly death rate in Moscow (Y-Y)')
 leg = g._legend
 leg.set_bbox_to_anchor([1, 0.9])
 plt.show()
 
 fig = g.fig
-fig.savefig('moscow_deaths.png')
+fig.savefig('moscow_data_stats.png')
 
+# Histogram of monthly cases
+fig1 = plt.figure()
+skew = round(data.StateRegistrationOfDeath.skew(),2)
+std = int(data.StateRegistrationOfDeath.std())
+mean = int(data.StateRegistrationOfDeath.mean())
+title = f"Monthly cases hist ({mean} +- {std}, skewness {skew})"
+ax = data.StateRegistrationOfDeath.plot(bins=50, kind="hist", density=True,
+                                        title=title)
+data.StateRegistrationOfDeath.plot(kind="kde", ax=ax)
+ax.axvline(data.StateRegistrationOfDeath.iloc[-1],
+           color='red')
+plt.show()
+fig1.savefig('moscow_data_hist.png')
 
+# IQT boxplot
+fig2 = plt.figure()
+g1 = sns.boxplot(x="Mon", y="StateRegistrationOfDeath", data=data)
+g1.set_title('Monthly death rate in Moscow (Y-Y)')
+
+plt.show()
+fig2.savefig('moscow_data_boxplots.png')
